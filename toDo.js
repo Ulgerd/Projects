@@ -5,6 +5,10 @@ function idGen() {
    return Nanoid('1234567890abcdef', 4)
 }
 
+function ReturnBold(props) {
+  return (props.text === props.filter) ? <b>{props.text}</b> : props.text;
+}
+
 class Input extends Component{
   constructor(props) {
     super(props);
@@ -14,27 +18,30 @@ class Input extends Component{
   }
 
   handleChange = (event) => {
-    this.setState({value: event.target.value});
+    this.setState({
+      value: event.target.value});
   }
 
   handleSubmit = () => {
     this.props.onAdd(this.state.value);
-    this.setState({value: ""});
+    this.setState({
+      value: ""});
   }
 
   render() {
     return(
-        <div>
-            <input
-              type="text"
-              value={this.state.value}
-              onChange={this.handleChange}></input>
-            <span> </span>
-            <button
-              onClick={this.handleSubmit}
-              disabled ={!this.state.value}>
-              Add</button>
-        </div>
+      <div>
+        <input
+          type="text"
+          value={this.state.value}
+          onChange={this.handleChange}>
+        </input>
+        <span> </span>
+        <button
+          onClick={this.handleSubmit}
+          disabled ={!this.state.value}>Add
+        </button>
+      </div>
     )
   }
 }
@@ -90,48 +97,51 @@ class Final extends Component {
 }
 
 addNote = (value) => {
-  this.setState(state => ({
-    ...state, notes: {...state.notes, [idGen()]: {note:value, checked:false}}
-  }))
+  let {notes} = this.state;
+  this.setState({
+    notes: {...notes, [idGen()]: {
+      note:value,
+      checked:false}}
+  })
 }
 
 delNote = (id) => {
-  let prevNotes = {...this.state.notes};
-  delete prevNotes[id];
-  this.setState(state => ({
-     ...state, notes: {...prevNotes}
-   }))
+  let {notes} = this.state;
+  delete notes[id];
+  this.setState({
+    notes: {...notes}
+  })
 }
 
 onFilterChange = (value) => {
-  this.setState(state => ({
-    ...state, filter: value
-  }))
+  this.setState({
+    filter: value
+  })
 }
 
 onCheck = (id) => {
-  let prevNotes = {...this.state.notes};
-  prevNotes[id] = {...prevNotes[id], checked: !prevNotes[id].checked}
-  this.setState(state => ({
-    ...state, notes: {...prevNotes}
-  }))
+  let {notes} = this.state;
+  let note = notes[id]
+  this.setState({
+    notes: {...notes,
+    [id]: {...note, checked: !note.checked}}
+  })
 }
 
-returnBald = (text) => {
-  return (text === this.state.filter) ? <b>{text}</b> : text;
+toArray = (key, obj) => {
+  return (obj => obj[key])
 }
 
   render() {
-    let notes=[];
-    for (let key in this.state.notes) {
-        notes.push(<Note
+    let {notes, filter} =this.state;
+    let notesDeploy = Object.keys(notes).map( key => <Note
           id={key}
           key={key}
-          value={this.state.notes[key]}
-          filter={this.state.filter}
+          value={notes[key]}
+          filter={filter}
           onX={this.delNote}
-          onCheck={this.onCheck}/>)
-    }
+      	  onCheck={this.onCheck}/> )
+
     return(
       <div>
         <Input onAdd={this.addNote}/>
@@ -140,29 +150,34 @@ returnBald = (text) => {
             cursor:'pointer',
             listStyleType: 'none',
             paddingLeft: 0}}>
-          {notes}
+          {notesDeploy}
           </ul>
           <div>
             <p>
-            {'Show: '}
-            <a href='#all' onClick = {() => this.onFilterChange('All')}>
-              {this.returnBald('All')}
-            </a>
-            {', '}
-            <a href='#active' onClick = {() => this.onFilterChange('Active')}>
-              {this.returnBald('Active')}
-            </a>
-            {', '}
-            <a href='#done' onClick = {() => this.onFilterChange('Done')}>
-              {this.returnBald('Done')}
-            </a>
+              {'Show: '}
+              <a
+                href='#all'
+                onClick = {() => this.onFilterChange('All')}>
+                <ReturnBold filter={this.state.filter} text = 'All' />
+              </a>
+              {', '}
+              <a
+                href='#active'
+                onClick = {() => this.onFilterChange('Active')}>
+                <ReturnBold filter={this.state.filter} text = 'Active' />
+              </a>
+              {', '}
+              <a
+                href='#done'
+                onClick = {() => this.onFilterChange('Done')}>
+                <ReturnBold filter={this.state.filter} text = 'Done' />
+              </a>
             </p>
           </div>
         </div>
       </div>
     )
   }
-
 }
 
 export default Final;
