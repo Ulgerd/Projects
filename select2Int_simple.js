@@ -30,20 +30,31 @@ class Select2 extends Component {
 
 class Final extends Component {
   state = {
-    disabled: false,
-    options: {
+    selected: ['Bar'],
+    options:{
               1: "Foo",
               2: "Bar",
               3: "Baz"
+            },
+    add:    {
+              4: "Spam",
+              5: "Boo"
             }
   }
 
   addOption = () => {
-    this.setState({
-      disabled: true,
-      options: {...this.state.options, 4: "Spam"}
+    let {add,options} = this.state;
+    Object.keys(add).map(key => {
+      if (!(key in options)) {
+        this.setState({
+          options: {
+            ...options,
+            [key]: add[key]}
+        })
+      }
+      return null;
     })
-  }
+}
 
   onChange = (e) => {
       this.setState({
@@ -52,27 +63,28 @@ class Final extends Component {
   }
 
   render() {
-    let defaultValue = this.state.options['2'];
-    let printSelected = this.state.selected
+    let {selected, add, options} = this.state;
+    let everythingAdded = Object.keys(add).every(
+      key => key in options)
     return(
       <div>
         <div>
           <button
             type='button'
             className='.button'
-            disabled={this.state.disabled}
+            disabled={everythingAdded}
             onClick={this.addOption}>
             Add a new Tag
           </button>
         </div>
         <hr/>
         <Select2
-          values={this.state.options}
-          defaultValue={defaultValue}
+          values={options}
+          defaultValue={selected}
           onSelect={this.onChange}/>
         <p>
           {'Selected: '}
-          {printSelected || defaultValue}
+          {selected}
         </p>
       </div>
     )
