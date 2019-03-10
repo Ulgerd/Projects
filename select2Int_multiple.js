@@ -36,53 +36,64 @@ class Select2 extends Component {
 class Final extends Component {
   state = {
     selected: ['Bar'],
-    disabled: false,
-    options: {
+    options:{
               1: "Foo",
               2: "Bar",
               3: "Baz"
+            },
+    add:    {
+              4: "Spam",
+              5: "Boo"
             }
   }
 
   addOption = () => {
-    this.setState({
-      disabled: true,
-      options: {...this.state.options, 4: "Spam"}
+    let {add,options} = this.state;
+    Object.keys(add).map(key => {
+      if (!(key in options)) {
+        this.setState({
+          options: {
+            ...options,
+            [key]: add[key]}
+        })
+      }
+      return null;
     })
   }
 
   onChange = (e) => {
-    let newSelected;
-    if (this.state.selected.indexOf(e) !== -1) {
-      let arr = this.state.selected;
-      arr.splice(this.state.selected.indexOf(e), 1)
-      newSelected = [...arr];
-    } else {
-      newSelected = [...this.state.selected, e]
-    }
+    let {selected} = this.state;
+    let arr = [...selected];
+    arr.splice(selected.indexOf(e), 1)
+    let newSelected = (selected.indexOf(e) !== -1) ?
+      [...arr] :
+      [...selected, e]
     this.setState({
       selected: newSelected
     })
   }
 
   render() {
-    let printSelected = this.state.selected.map(
-       key => ` ${key}`)
+    let {selected, add, options} = this.state;
+    let printSelected = selected.map(
+      key => ` ${key}`)
+    let everythingAdded = Object.keys(add).every(
+      key => key in options)
     return(
       <div>
         <div>
           <button
             type='button'
             className='.button'
-            disabled={this.state.disabled}
+            disabled={everythingAdded}
             onClick={this.addOption}>
             Add a new Tag
           </button>
         </div>
         <hr/>
         <Select2
-          values={this.state.options}
-          defaultValue={this.state.selected}
+          values={options}
+          defaultValue={selected}
           onSelect={this.onChange}/>
         <p>
           {'Selected: '}
