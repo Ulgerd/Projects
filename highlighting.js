@@ -12,17 +12,12 @@ class Final extends Component {
   }
 
   componentDidMount() {
-    this.highlight();
+    hljs.highlightBlock(this.block);
   }
 
   componentDidUpdate() {
-    this.highlight();
+    hljs.highlightBlock(this.block);
   }
-
-  highlight = () => {
-    let a = document.querySelector(".js")
-    hljs.highlightBlock(a);
-  };
 
   nextSnippet = () => {
     let {counter} = this.state;
@@ -48,7 +43,8 @@ class Final extends Component {
         <pre>
           <code
             className='js'
-            dangerouslySetInnerHTML={this.printSnippet()}>
+            dangerouslySetInnerHTML={this.printSnippet()}
+            ref ={(block) => this.block = block}>
           </code>
         </pre>
       </div>
