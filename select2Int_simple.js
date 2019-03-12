@@ -5,24 +5,17 @@ import "select2/dist/css/select2.css"
 window.jQuery = window.$ = $
 
 class Select2 extends Component {
-  componentDidMount() {
-    $(document).ready(() => {
-      $('.jquerySelect2').select2();
-      $('.jquerySelect2').val(this.props.defaultValue).trigger('change')
-      $('.jquerySelect2').on("select2:select", this.props.onSelect);
-    });
-  }
 
-  render(props) {
-    let options = Object.keys(this.props.values).map( key =>
-      <option
-        key={key}>{this.props.values[key]}
-      </option>)
+  render() {
+    let {values, defaultValue, onSelect} =this.props;
+
     return(
       <select
-        style={{width: '10%'}}
-        className="jquerySelect2" >
-        {options}
+        value={defaultValue}
+        onChange = {onSelect}
+        ref ={(node) => {this.heading = node}}>
+        {values.map( value =>
+          <option key={value}>{value}</option>)}
       </select>
     )
   }
@@ -30,31 +23,29 @@ class Select2 extends Component {
 
 class Final extends Component {
   state = {
-    selected: ['Bar'],
-    options:{
-              1: "Foo",
-              2: "Bar",
-              3: "Baz"
-            },
-    add:    {
-              4: "Spam",
-              5: "Boo"
-            }
+    selected: 'Bar',
+    options: ["Foo", "Bar", "Baz"],
+    add: ["Spam", "Boo"]
+  }
+
+  componentDidMount() {
+    $(this.select2.heading).select2()
+    $(this.select2.heading).on("select2:select", this.onChange);
+  }
+
+  componentWillUnmount() {
+    $(this.select2.heading).select2('destroy')
+    $(this.select2.heading).off("select2:select");
   }
 
   addOption = () => {
-    let {add,options} = this.state;
-    Object.keys(add).map(key => {
-      if (!(key in options)) {
-        this.setState({
-          options: {
-            ...options,
-            [key]: add[key]}
-        })
-      }
-      return null;
+    let {options, add} = this.state;
+    let newAdd = [...add];
+    this.setState({
+      options: [...options, add[0]],
+      add: [...newAdd.splice(1,)]
     })
-}
+  }
 
   onChange = (e) => {
       this.setState({
@@ -64,15 +55,13 @@ class Final extends Component {
 
   render() {
     let {selected, add, options} = this.state;
-    let everythingAdded = Object.keys(add).every(
-      key => key in options)
     return(
       <div>
         <div>
           <button
             type='button'
             className='.button'
-            disabled={everythingAdded}
+            disabled={add.length===0}
             onClick={this.addOption}>
             Add a new Tag
           </button>
@@ -81,7 +70,8 @@ class Final extends Component {
         <Select2
           values={options}
           defaultValue={selected}
-          onSelect={this.onChange}/>
+          onSelect={this.onChange}
+          ref ={(node) => {this.select2 = node}}/>
         <p>
           {'Selected: '}
           {selected}
