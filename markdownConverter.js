@@ -8,6 +8,8 @@ class Final extends Component {
     enter: false
   };
 
+  textRef = React.createRef();
+
   componentDidMount() {
     window.addEventListener('keypress', this.onEnterDown)
   }
@@ -16,14 +18,17 @@ class Final extends Component {
     window.removeEventListener('keypress', this.onEnterDown)
   }
 
-  onInputChange = debounce((input) => {
+  onInputChange = (input) => {
     this.setState({ input })
-  }, 500);
-
-  createMarkedText = () => {
-    let markup = Marked(this.state.input);
-    return { __html: markup}
+    this.createMarkedText()
   }
+
+  createMarkedText = debounce( () => {
+    let {enter, input} = this.state;
+    let markup = Marked(input);
+    this.textRef.current.innerHTML =
+      enter ? input : markup;
+  }, 500);
 
   onEnterDown = (e) => {
     if(e.keyCode === 13) {
@@ -31,14 +36,11 @@ class Final extends Component {
         enter: !this.state.enter
       })
     }
+    this.createMarkedText()
   }
 
   render() {
-    let output = this.state.enter ?
-      <div>{this.state.input}</div> :
-      <div
-        dangerouslySetInnerHTML={
-          this.createMarkedText()}/>
+    let output = <div ref={this.textRef}/>
 
     return(
       <div className='App'>
